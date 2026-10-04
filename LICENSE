@@ -1,0 +1,59 @@
+LICENSE / ATTRIBUTION NOTICE
+=============================================================================
+
+Project: Lions, Tigers, and Bears, Oh My!
+Type: University assignment / educational project
+
+-----------------------------------------------------------------------------
+ATTRIBUTION TO ORIGINAL TUTORIAL AUTHOR
+-----------------------------------------------------------------------------
+
+This project was developed as part of a university assignment based on the
+educational concepts taught in the tutorial:
+
+  "Dogs, JavaScript & An API 🐶 Fetch, Promises & Async Await"
+  by Brad Schiff (LearnWebCode)
+  https://www.youtube.com/watch?v=AVmGmLFcukM
+
+Brad Schiff is the original author of the tutorial and its associated
+teaching material. This project implements the same educational concepts
+(Fetch API, Promises, async/await, JSON handling, dynamic DOM updates) as
+a course assignment, using original code written for that purpose. It is
+NOT a redistribution of Brad Schiff's own source files, and it is NOT
+presented as, or claimed to be, Brad Schiff's original work.
+
+-----------------------------------------------------------------------------
+LICENSE STATUS
+-----------------------------------------------------------------------------
+
+No specific, verifiable license text for Brad Schiff's original tutorial or
+any accompanying source code was located at the time this project was
+prepared. No license terms for that original material have been invented,
+assumed, or reproduced here.
+
+Accordingly:
+
+  License information for the original tutorial/application should be
+  reviewed from Brad Schiff's original source (his YouTube channel,
+  LearnWebCode, or any linked repository/course materials) before this
+  project — or any code derived from the tutorial's concepts — is
+  redistributed.
+
+If Brad Schiff has published explicit license terms for the tutorial's
+source code (for example, in a linked GitHub repository or course page),
+those terms should be located, reviewed, and referenced here by whoever
+redistributes this project, in place of this notice.
+
+-----------------------------------------------------------------------------
+THIS PROJECT'S OWN CODE
+-----------------------------------------------------------------------------
+
+The HTML, CSS, JavaScript, and Node.js (Express) files in this repository were written
+specifically for this course assignment by the student identified below,
+applying the concepts taught in the referenced tutorial. This code is
+shared for educational purposes as part of a university assignment and is
+not offered under a formal open-source license.
+
+Author: [YOUR FULL NAME]
+Course: [YOUR COURSE NAME]
+Instructor: [YOUR INSTRUCTOR NAME]
