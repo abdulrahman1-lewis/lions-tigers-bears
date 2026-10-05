@@ -1,70 +1,78 @@
 <!DOCTYPE html>
+<!-- AI use: Generated with Claude (Anthropic), then reviewed and tested by the author. -->
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lions, Tigers, and Bears, Oh My!</title>
-  <link rel="stylesheet" href="style.css" />
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Lions, Tigers, and Bears, Oh My!</title>
+	<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- ================= HEADER ================= -->
-  <header class="site-header">
-    <h1>Lions, Tigers, and Bears, Oh My!</h1>
-    <p class="subtitle">Dog Image Viewer &ndash; JavaScript API Demonstration</p>
-    <p class="explanation">
-      This application demonstrates how JavaScript can communicate with a public API,
-      retrieve JSON data, and dynamically display dog images.
-    </p>
-  </header>
+	<!-- ================= HEADER ================= -->
+	<header class="site-header">
+		<h1>Lions, Tigers, and Bears, Oh My!</h1>
+		<p class="subtitle">Dog Image Slideshow &ndash; JavaScript API Demonstration</p>
+		<p class="explanation">
+			Choose a dog breed to watch a slideshow of its photos. JavaScript fetches the
+			breed list and the images from a public API as JSON and updates the page without
+			reloading it.
+		</p>
+	</header>
 
-  <main class="app-container">
+	<main class="app-container">
 
-    <!-- ================= IMAGE DISPLAY ================= -->
-    <section class="card image-card" aria-label="Dog image display">
-      <div class="image-frame">
-        <img
-          id="dogImage"
-          class="dog-image"
-          src=""
-          alt="Random dog image"
-          hidden
-        />
-        <p id="loadingMessage" class="status-message loading-message">Loading dog image&hellip;</p>
-        <p id="errorMessage" class="status-message error-message" hidden>
-          Unable to retrieve a dog image. Please try again.
-        </p>
-      </div>
+		<!-- ================= BREED SELECTION ================= -->
+		<section class="card" aria-label="Breed selection">
+			<label for="breedSelect" class="select-label">Choose a dog breed</label>
+			<select id="breedSelect">
+				<option value="">Loading breeds&hellip;</option>
+			</select>
+		</section>
 
-      <p class="breed-info">
-        Dog Breed: <span id="breedName">Information unavailable</span>
-      </p>
-    </section>
+		<!-- ================= IMAGE DISPLAY ================= -->
+		<section class="card image-card" aria-label="Dog image display">
+			<div class="image-frame">
+				<img id="dogImage" class="dog-image" alt="Dog photo" hidden />
+				<p id="loadingMessage" class="status-message loading-message">
+					Loading dog image&hellip;
+				</p>
+				<p id="errorMessage" class="status-message error-message" hidden>
+					Unable to retrieve dog images. Please try again.
+				</p>
+			</div>
 
-    <!-- ================= CONTROLS ================= -->
-    <section class="card controls" aria-label="Dog image controls">
-      <div class="button-row">
-        <button id="previousButton" type="button">Previous</button>
-        <button id="newDogButton" type="button">Get New Dog</button>
-        <button id="nextButton" type="button">Next</button>
-      </div>
-      <p class="history-status" id="historyStatus">Image 0 of 0</p>
-    </section>
+			<p class="breed-info">
+				Dog Breed: <span id="breedName">Information unavailable</span>
+			</p>
+			<p class="history-status" id="slideStatus">Image 0 of 0</p>
+		</section>
 
-  </main>
+		<!-- ================= CONTROLS ================= -->
+		<section class="card controls" aria-label="Slideshow controls">
+			<div class="button-row">
+				<button id="previousButton" type="button">Previous</button>
+				<button id="playButton" type="button">Pause</button>
+				<button id="nextButton" type="button">Next</button>
+				<button id="randomButton" type="button">Random Dog</button>
+			</div>
+		</section>
 
-  <!-- ================= FOOTER ================= -->
-  <footer class="site-footer">
-    <p>
-      Built as a university assignment based on
-      <a href="https://www.youtube.com/watch?v=AVmGmLFcukM" target="_blank" rel="noopener noreferrer">
-        "Dogs, JavaScript &amp; An API &#128054; Fetch, Promises &amp; Async Await"
-      </a>
-      by Brad Schiff.
-    </p>
-    <p>[Abdulrahman] &middot; [software engineering] &middot; Instructor: [Eric Pogue]</p>
-  </footer>
+	</main>
 
-  <script src="script.js"></script>
+	<!-- ================= FOOTER ================= -->
+	<footer class="site-footer">
+		<p>
+			Built as a university assignment based on
+			<a href="https://www.youtube.com/watch?v=AVmGmLFcukM" target="_blank"
+				rel="noopener noreferrer">
+				Dogs, JavaScript &amp; An API: Fetch, Promises &amp; Async Await
+			</a>
+			by Brad Schiff.
+		</p>
+		<p>Abdul Rahman &middot; Software Engineering &middot; Instructor: Eric Pogue</p>
+	</footer>
+
+	<script src="script.js"></script>
 </body>
 </html>

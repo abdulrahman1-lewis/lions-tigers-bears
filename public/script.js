@@ -1,149 +1,207 @@
-/* =========================================================================
-   LIONS, TIGERS, AND BEARS, OH MY! — SCRIPT
-   Demonstrates: Fetch API, Promises, async/await, JSON processing,
-   dynamic DOM updates (AJAX), and error handling.
+// AI use: Generated with Claude (Anthropic), then reviewed and tested by the author.
+// Based on the concepts in Brad Schiff's tutorial "Dogs, JavaScript & An API: Fetch,
+// Promises & Async Await" (LearnWebCode). See README.md for full credit.
 
-   This version calls our own Node.js/Express endpoint (/api/dog), which in
-   turn calls the public Dog CEO API on the server.
-
-   Based on the educational concepts taught in Brad Schiff's tutorial
-   "Dogs, JavaScript & An API 🐶 Fetch, Promises & Async Await".
-   See README.md for full attribution.
-   ========================================================================= */
+// ---------- Constants ----------
+const DOG_API_URL = '/api/dog'
+const BREEDS_API_URL = '/api/breeds'
+const SLIDE_DELAY_MS = 3000
 
 // ---------- Element references ----------
-const dogImage = document.getElementById("dogImage");
-const loadingMessage = document.getElementById("loadingMessage");
-const errorMessage = document.getElementById("errorMessage");
-const breedName = document.getElementById("breedName");
-const historyStatus = document.getElementById("historyStatus");
+const breedSelect = document.getElementById('breedSelect')
+const dogImage = document.getElementById('dogImage')
+const loadingMessage = document.getElementById('loadingMessage')
+const errorMessage = document.getElementById('errorMessage')
+const breedName = document.getElementById('breedName')
+const slideStatus = document.getElementById('slideStatus')
 
-const newDogButton = document.getElementById("newDogButton");
-const previousButton = document.getElementById("previousButton");
-const nextButton = document.getElementById("nextButton");
+const previousButton = document.getElementById('previousButton')
+const playButton = document.getElementById('playButton')
+const nextButton = document.getElementById('nextButton')
+const randomButton = document.getElementById('randomButton')
 
-// Our Node.js endpoint. It proxies the public Dog CEO API and returns
-// { imageUrl, breed }. See server.js and README.md.
-const DOG_API_URL = "/api/dog";
-
-// ---------- Image history ----------
-// A simple array keeps track of every image ({ imageUrl, breed }) retrieved during this
-// session so the Previous/Next buttons can move through past results
-// without making a new API request every time.
-let imageHistory = [];
-let historyIndex = -1; // Points at the image currently on screen.
+// ---------- Slideshow state ----------
+let slides = [] // image URLs for the current slideshow
+let slideIndex = 0 // the slide on screen
+let slideTimer = null // set while the slideshow is playing
+let currentBreedName = 'Information unavailable'
 
 // ---------- UI state helpers ----------
 function showLoading() {
-  loadingMessage.hidden = false;
-  errorMessage.hidden = true;
-  dogImage.hidden = true;
+	loadingMessage.hidden = false
+	errorMessage.hidden = true
+	dogImage.hidden = true
 }
 
 function showImage() {
-  loadingMessage.hidden = true;
-  errorMessage.hidden = true;
-  dogImage.hidden = false;
+	loadingMessage.hidden = true
+	errorMessage.hidden = true
+	dogImage.hidden = false
 }
 
 function showError() {
-  loadingMessage.hidden = true;
-  errorMessage.hidden = false;
-  dogImage.hidden = true;
+	loadingMessage.hidden = true
+	errorMessage.hidden = false
+	dogImage.hidden = true
 }
 
-// Enable/disable Previous and Next based on where we are in the history.
-function updateNavButtons() {
-  previousButton.disabled = historyIndex <= 0;
-  nextButton.disabled = historyIndex >= imageHistory.length - 1;
-  historyStatus.textContent = `Image ${imageHistory.length === 0 ? 0 : historyIndex + 1} of ${imageHistory.length}`;
+// Enable or disable the controls and update the "Image X of Y" text
+function updateControls() {
+	const hasSeveralSlides = slides.length > 1
+	previousButton.disabled = !hasSeveralSlides
+	nextButton.disabled = !hasSeveralSlides
+	playButton.disabled = !hasSeveralSlides
+	slideStatus.textContent = `Image ${slides.length === 0 ? 0 : slideIndex + 1} of ${slides.length}`
 }
 
-// ---------- Display a specific image from history ----------
-function displayImageAt(index) {
-  const item = imageHistory[index];
-  if (!item) return;
-
-  dogImage.src = item.imageUrl;
-  breedName.textContent = item.breed || "Information unavailable";
-  showImage();
-
-  historyIndex = index;
-  updateNavButtons();
+// ---------- Slideshow ----------
+function displaySlide(index) {
+	slideIndex = index
+	dogImage.src = slides[slideIndex]
+	breedName.textContent = currentBreedName
+	showImage()
+	updateControls()
 }
 
-// ---------- getDogImage() ----------
-// This function demonstrates the core concepts required by the assignment:
-//
-// 1. fetch() sends an HTTP GET request to our Node API and returns a
-//    Promise that resolves once the server responds.
-// 2. async/await lets us "pause" execution inside this function until
-//    each Promise settles, so the code reads top-to-bottom like
-//    synchronous code instead of using nested .then() callbacks.
-// 3. Because the request happens in the background, the rest of the page
-//    stays interactive and no full page reload is needed — this is the
-//    AJAX concept: talking to a web service asynchronously and updating
-//    the page's content dynamically once the data arrives.
-async function getDogImage() {
-  showLoading();
-
-  try {
-    // Send the HTTP request and wait for the response.
-    const response = await fetch(DOG_API_URL);
-
-    // Fetch only rejects on a network failure, not on HTTP error status
-    // codes (like 404 or 500), so we check response.ok ourselves.
-    if (!response.ok) {
-      throw new Error(`HTTP error: ${response.status}`);
-    }
-
-    // The response body is read as text over the network; .json() parses
-    // that text into a JavaScript object we can work with.
-    const data = await response.json();
-
-    // Our Node API returns JSON shaped like:
-    // { "imageUrl": "https://images.dog.ceo/breeds/.../image.jpg", "breed": "Afghan Hound" }
-    if (!data.imageUrl) {
-      throw new Error("Unexpected API response format.");
-    }
-
-    // Save the new image in the history array, then display it.
-    imageHistory.push({ imageUrl: data.imageUrl, breed: data.breed });
-    displayImageAt(imageHistory.length - 1);
-  } catch (error) {
-    // Handles network errors, HTTP errors, and invalid JSON/response shape.
-    console.error("Error retrieving dog image:", error);
-    showError();
-    updateNavButtons();
-  }
+function stopSlideshow() {
+	clearInterval(slideTimer)
+	slideTimer = null
+	playButton.textContent = 'Play'
 }
 
-// ---------- Button event listeners ----------
+function startSlideshow() {
+	stopSlideshow()
+	if (slides.length < 2) {
+		return
+	}
+	slideTimer = setInterval(() => {
+		displaySlide((slideIndex + 1) % slides.length)
+	}, SLIDE_DELAY_MS)
+	playButton.textContent = 'Pause'
+}
 
-// "Get New Dog" always requests a fresh image from the API.
-newDogButton.addEventListener("click", getDogImage);
+// Move forward (+1) or backward (-1) and wrap around at the ends
+function moveSlide(step) {
+	if (slides.length < 2) {
+		return
+	}
+	const wasPlaying = slideTimer !== null
+	displaySlide((slideIndex + step + slides.length) % slides.length)
+	if (wasPlaying) {
+		startSlideshow() // restart the timer so the slide is not skipped right away
+	}
+}
 
-// "Previous" moves backward through the history array without calling
-// the API again, and never lets the index go below 0.
-previousButton.addEventListener("click", () => {
-  if (historyIndex > 0) {
-    displayImageAt(historyIndex - 1);
-  }
-});
+// ---------- fetchJson() ----------
+// fetch() sends an HTTP GET request to our Node API and returns a Promise. async/await pauses
+// this function until the Promise settles, so the code reads top to bottom. The page stays
+// responsive and is updated when the data arrives, which is the AJAX idea.
+async function fetchJson(url) {
+	const response = await fetch(url)
 
-// "Next" moves forward through history if a later image already exists;
-// otherwise it fetches a brand new image from the API.
-nextButton.addEventListener("click", () => {
-  if (historyIndex < imageHistory.length - 1) {
-    displayImageAt(historyIndex + 1);
-  } else {
-    getDogImage();
-  }
-});
+	// fetch only rejects on a network failure, so check the HTTP status ourselves
+	if (!response.ok) {
+		throw new Error(`HTTP error: ${response.status}`)
+	}
+
+	// .json() parses the response text into a JavaScript object
+	return response.json()
+}
+
+// ---------- Load the breed list into the dropdown ----------
+async function loadBreeds() {
+	try {
+		const data = await fetchJson(BREEDS_API_URL)
+
+		breedSelect.innerHTML = ''
+		const placeholder = document.createElement('option')
+		placeholder.value = ''
+		placeholder.textContent = 'Select a breed'
+		breedSelect.appendChild(placeholder)
+
+		for (const breed of data.breeds) {
+			const option = document.createElement('option')
+			option.value = breed.value
+			option.textContent = breed.label
+			breedSelect.appendChild(option)
+		}
+	} catch (error) {
+		console.error('Error retrieving breeds:', error)
+		breedSelect.innerHTML = '<option value="">Breeds unavailable</option>'
+	}
+}
+
+// ---------- Load a slideshow for the selected breed ----------
+async function loadBreedSlideshow(breedValue) {
+	if (breedValue === '') {
+		return
+	}
+
+	stopSlideshow()
+	showLoading()
+
+	try {
+		const data = await fetchJson(`/api/breed/${breedValue}/images`)
+
+		if (!Array.isArray(data.imageUrls) || data.imageUrls.length === 0) {
+			throw new Error('No images were returned for this breed.')
+		}
+
+		slides = data.imageUrls
+		currentBreedName = data.breed
+		displaySlide(0)
+		startSlideshow()
+	} catch (error) {
+		console.error('Error retrieving breed images:', error)
+		showError()
+		updateControls()
+	}
+}
+
+// ---------- Show one random dog ----------
+async function loadRandomDog() {
+	stopSlideshow()
+	breedSelect.value = ''
+	showLoading()
+
+	try {
+		const data = await fetchJson(DOG_API_URL)
+
+		if (!data.imageUrl) {
+			throw new Error('Unexpected API response format.')
+		}
+
+		slides = [data.imageUrl]
+		currentBreedName = data.breed
+		displaySlide(0)
+		playButton.textContent = 'Play'
+	} catch (error) {
+		console.error('Error retrieving dog image:', error)
+		showError()
+		updateControls()
+	}
+}
+
+// ---------- Event listeners ----------
+breedSelect.addEventListener('change', () => loadBreedSlideshow(breedSelect.value))
+previousButton.addEventListener('click', () => moveSlide(-1))
+nextButton.addEventListener('click', () => moveSlide(1))
+randomButton.addEventListener('click', loadRandomDog)
+
+playButton.addEventListener('click', () => {
+	if (slideTimer === null) {
+		startSlideshow()
+	} else {
+		stopSlideshow()
+	}
+})
+
+// If a photo fails to load, show the error message
+dogImage.addEventListener('error', showError)
 
 // ---------- Initial load ----------
-// Retrieve the first dog image as soon as the page finishes loading.
-window.addEventListener("DOMContentLoaded", () => {
-  updateNavButtons();
-  getDogImage();
-});
+window.addEventListener('DOMContentLoaded', () => {
+	updateControls()
+	loadBreeds()
+	loadRandomDog()
+})
